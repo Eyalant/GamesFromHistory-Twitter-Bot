@@ -41,7 +41,45 @@ class GameInfo:
                 "Indie": "משחק האינדי",
                 "Card & Board Game": "משחק הקלפים/לוח",
                 "MOBA": "המובה",
-                        "Point-and-click": "משחק הפוינט-אנד-קליק"
+                "Point-and-click": "משחק הפוינט-אנד-קליק"
+            }
+            self.heb_platforms: typing.Dict[str, str] = {
+                "PlayStation": "PSX",
+                "PlayStation 2": "פס2",
+                "PlayStation 3": "פס3",
+                "PlayStation 4": "פס4",
+                "PlayStation 5": "פס5",
+                "PlayStation Portable": "PSP",
+                "PlayStation Vita": "ויטה",
+                "PlayStation VR": "PSVR",
+                "PlayStation VR2": "PSVR2",
+                "PC (Microsoft Windows)": "פיסי",
+                "Sega Game Gear": "גיימגיר",
+                "Sega CD": "סגה סידי",
+                "Sega Master System/Mark III": "מאסטר סיסטם",
+                "Sega Saturn": "סגה סאטורן",
+                "Sega Mega Drive/Genesis": "מגה דרייב",
+                "3DO Interactive Multiplayer": "3DO",
+                "Dreamcast": "דרימקאסט",
+                "Atari 8-bit": "אטארי 8-ביט",
+                "Atari 2600": "אטארי 2600",
+                "Arcade": "ארקייד",
+                "Xbox": "אקסבוקס",
+                "Xbox Series X|S": "סירייס S|X",
+                "Xbox 360": "אקסבוקס 360",
+                "Xbox One": "אקסבוקס וואן",
+                "Nintendo Switch": "סוויץ'",
+                "Nintendo 64": "נינטנדו 64",
+                "Nintendo Entertainment System": "NES",
+                "Nintendo 3DS": "3DS",
+                "Nintendo DS": "DS",
+                "Nintendo GameCube": "גיימקיוב",
+                "Game Boy": "גיימבוי",
+                "Game Boy Color": "גיימבוי קולור",
+                "Game Boy Advance": "GBA",
+                "iOS": "אייפון",
+                "Android": "אנדרואיד",
+                "Google Stadia": "", "Linux": "", "Mac": ""
             }
         except Exception as e:
             raise Exception("Could not create a GameInfo object") from e
@@ -54,17 +92,22 @@ class GameInfo:
             pub: str = self.data_dict.get("publisher", None)
             pub_text: str = f"""מפיצה: {self.data_dict.get("publisher", None)}""" if pub else ""
             wiki_url: str = self.data_dict.get("wiki_url", None)
-            wiki_text: str = f"""לערך הוויקי'): {wiki_url}""" + "\n" if wiki_url else "\n"
+            wiki_text: str = f"""בוויקיפדיה: {wiki_url}""" + \
+                "\n" if wiki_url else "\n"
             test_img: str = self.data_dict.get("cover", None)
             intro_text: str = "".join([
                 "{} {} חוגג {} שנים לשחרורו!".format(self._translate_game_genre(self.data_dict["genre"]),
                                                      self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
                 " הוא יצא היום בשנת {}.".format(self.data_dict["year"])
             ])
+            self.data_dict["platforms"] = ["kak", "Xbox"]
+            heb_platforms: typing.List[str] = [self.heb_platforms.get(
+                p, p) for p in self.data_dict["platforms"]]
             info_text: str = "\n".join([
-                "מפתחת: {}".format(", ".join(self.data_dict["developers"])),
+                "מפתחת: {}".format(self.data_dict["developers"][0]),
                 pub_text,
-                "פלטפורמות: {}".format(", ".join(self.data_dict["platforms"]))
+                "פלטפורמות: {}".format(
+                    " ,".join(sorted([p for p in heb_platforms if p])))
             ])
             tweet: str = intro_text + "\n"*2 + info_text + "\n"
             if len(tweet) + 23 <= 180:

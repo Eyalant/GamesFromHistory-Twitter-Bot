@@ -20,9 +20,6 @@ def run_hourly() -> None:
         if not game_data_dict:
             logging.info("There was no game to fetch from redis. Exiting")
             exit(0)
-        igdb_client: conn_igdb.IGDB = conn_igdb.IGDB(client_id=str(environ.get("IGDB_CLIENT_ID")),
-                                        client_secret=str(environ.get("IGDB_CLIENT_SECRET")),
-                                        )
         twitter: conn_twitter.Twitter = conn_twitter.Twitter()
         game_info: GameInfo = GameInfo(game_data_dict, do_clean_dict=False) # was already cleaned before storing to Redis
         logging.info("Pulled game {} from Redis".format(game_info.data_dict["name"]))
