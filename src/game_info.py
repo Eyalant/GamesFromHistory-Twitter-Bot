@@ -100,7 +100,6 @@ class GameInfo:
                                                      self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
                 " הוא יצא היום בשנת {}.".format(self.data_dict["year"])
             ])
-            self.data_dict["platforms"] = ["kak", "Xbox"]
             heb_platforms: typing.List[str] = [self.heb_platforms.get(
                 p, p) for p in self.data_dict["platforms"]]
             info_text: str = "\n".join([
