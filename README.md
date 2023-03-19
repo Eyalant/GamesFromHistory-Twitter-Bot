@@ -1,6 +1,6 @@
 [This is a twitter bot](https://twitter.com/DailyGameHeb)  which publishes a bit of info about major video games released on this day in history.
 
-No API wrappers were used here; I felt they were too much of a black box and opted for direct HTTP requests. This project leverages the *Twitter* v1 and v2 APIs, **IGDB.com*'*s  API v4 and *Redis*. 
+No API wrappers were used here; I felt they were too much of a black box and opted for direct HTTP requests. This project leverages the *Twitter* v1 and v2 APIs, *[IGDB]*'s  API v4 and *Redis*. 
 
 ## How it works
 
