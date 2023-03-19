@@ -53,6 +53,8 @@ class GameInfo:
         try:
             pub: str = self.data_dict.get("publisher", None)
             pub_text: str = f"""מפיצה: {self.data_dict.get("publisher", None)}""" if pub else ""
+            wiki_url: str = self.data_dict.get("wiki_url", None)
+            wiki_text: str = f"""לערך המשחק בוויקיפדיה (אנ'): {wiki_url}""" + "\n"*2 if wiki_url else "\n"
             test_img: str = self.data_dict.get("cover", None)
             intro_text: str = "".join([
                 "{} {} חוגג {} שנים לשחרורו!".format(self._translate_game_genre(self.data_dict["genre"]),
@@ -64,7 +66,7 @@ class GameInfo:
                 pub_text,
                 "פלטפורמות: {}".format(", ".join(self.data_dict["platforms"]))
             ])
-            return intro_text + "\n"*2 + info_text
+            return intro_text + "\n"*2 + info_text + "\n" + wiki_text
         except Exception as e:
             raise Exception(
                 "Could not create a string repr. of a GameInfo") from e
@@ -183,6 +185,11 @@ class GameInfo:
                         ret["publisher"] = d["company"]["name"]
             if platforms := game_info_data_dict.get("platforms", None):
                 ret["platforms"] = [p["name"] for p in platforms]
+            if websites := game_info_data_dict.get("websites", None):
+                for site in websites:
+                    if site["category"] == 3:
+                        ret["wiki_url"] = site["url"]
+                        break
 
             return ret
         except KeyError as e:
