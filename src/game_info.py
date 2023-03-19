@@ -106,7 +106,7 @@ class GameInfo:
                 "מפתחת: {}".format(self.data_dict["developers"][0]),
                 pub_text,
                 "פלטפורמות: {}".format(
-                    " ,".join(sorted([p for p in heb_platforms if p])))
+                    ", ".join(sorted([p for p in heb_platforms if p])))
             ])
             tweet: str = intro_text + "\n"*2 + info_text + "\n"
             if len(tweet) + 23 <= 180:
