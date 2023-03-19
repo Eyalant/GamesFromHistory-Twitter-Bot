@@ -25,9 +25,12 @@ def run_hourly() -> None:
                                         )
         twitter: conn_twitter.Twitter = conn_twitter.Twitter()
         game_info: GameInfo = GameInfo(game_data_dict, do_clean_dict=False) # was already cleaned before storing to Redis
+        logging.info("Pulled game {} from Redis".format(game_info.data_dict["name"]))
         media_ids: typing.List[str] = twitter.upload_images(image_binaries=game_info.images)
         payload: typing.Dict[str, str] = twitter.make_tweet(tweet_text=str(game_info), media_ids=media_ids[:3])
+        logging.info("Trying to tweet...")
         resp: typing.Dict[str, typing.Any] = twitter.tweet(payload)
+        logging.info("Tweet response: " + str(resp))
     except Exception as e:
         logging.critical(
             "Completed an hourly / bi-hourly script: exiting following exception. Details to follow\n" + str(e), exc_info=True)

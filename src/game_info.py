@@ -41,7 +41,7 @@ class GameInfo:
                 "Indie": "משחק האינדי",
                 "Card & Board Game": "משחק הקלפים/לוח",
                 "MOBA": "המובה",
-                "Point-and-click": "משחק הפוינט-אנד-קליק"
+                        "Point-and-click": "משחק הפוינט-אנד-קליק"
             }
         except Exception as e:
             raise Exception("Could not create a GameInfo object") from e
@@ -54,8 +54,7 @@ class GameInfo:
             pub: str = self.data_dict.get("publisher", None)
             pub_text: str = f"""מפיצה: {self.data_dict.get("publisher", None)}""" if pub else ""
             wiki_url: str = self.data_dict.get("wiki_url", None)
-            wiki_text: str = f"""לערך המשחק בוויקיפדיה (אנ'): {wiki_url}""" + \
-                "\n"*2 if wiki_url else "\n"
+            wiki_text: str = f"""לערך הוויקי'): {wiki_url}""" + "\n" if wiki_url else "\n"
             test_img: str = self.data_dict.get("cover", None)
             intro_text: str = "".join([
                 "{} {} חוגג {} שנים לשחרורו!".format(self._translate_game_genre(self.data_dict["genre"]),
@@ -67,7 +66,10 @@ class GameInfo:
                 pub_text,
                 "פלטפורמות: {}".format(", ".join(self.data_dict["platforms"]))
             ])
-            return intro_text + "\n"*2 + info_text + "\n" + wiki_text
+            tweet: str = intro_text + "\n"*2 + info_text + "\n"
+            if len(tweet) + 23 <= 180:
+                tweet += wiki_text
+            return tweet
         except Exception as e:
             raise Exception(
                 "Could not create a string repr. of a GameInfo") from e
