@@ -1,0 +1,6 @@
+*.log
+*.zip
+__pycache__/
+.mypy_cache/
+lambda_layers/
+.env
