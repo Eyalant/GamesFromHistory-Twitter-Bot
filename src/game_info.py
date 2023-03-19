@@ -11,6 +11,7 @@ class GameInfo:
     Wrapper around the game data dict. Contains methods to parse, clean and download
     images listed in the data dict.
     """
+    MAX_TWITTER_URL_LENGTH: int = 23
 
     def __init__(self, data_dict: typing.Dict[str, typing.Any], do_clean_dict: typing.Optional[bool] = True):
         try:
@@ -109,7 +110,7 @@ class GameInfo:
                     ", ".join(sorted([p for p in heb_platforms if p])))
             ])
             tweet: str = intro_text + "\n"*2 + info_text + "\n"
-            if len(tweet) + 23 <= 180:
+            if len(tweet) + GameInfo.MAX_TWITTER_URL_LENGTH <= 180:
                 tweet += wiki_text
             return tweet
         except Exception as e:
