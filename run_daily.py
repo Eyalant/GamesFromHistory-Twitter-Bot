@@ -71,15 +71,14 @@ def _prepare_request_body(d: conn_igdb.IGDB_Date) -> str:
     Returns the raw body of the request that'll be sent to IGDB's games endpoint.
     """
     try:
-        return "fields name, parent_game, aggregated_rating_count, aggregated_rating, platforms.name,"\
+        return "fields name, parent_game, total_rating_count, total_rating, platforms.name,"\
             "summary, cover.url, involved_companies.company.name, involved_companies.developer,"\
             "involved_companies.publisher, genres.name, websites.category, websites.url, artworks.url,"\
             "screenshots.url;"\
             f"where (first_release_date >= {d.lower_bound['ts']})"\
             f"& (first_release_date <= {d.upper_bound['ts']})"\
             "& (themes != (42))"\
-            "& (aggregated_rating >= 80)"\
-            "& (aggregated_rating_count >= 7);"
+            "& ((total_rating >= 78 & total_rating_count >= 15) | (total_rating_count >= 100));"
     except Exception as e:
         raise ValueError(
             "Had a problem preparing the raw request body for the IGDB games endpoint") from e

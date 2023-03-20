@@ -90,8 +90,10 @@ class GameInfo:
         A string representation of a GameInfo instance. This is the text to be tweeted.
         """
         try:
+            dev: str = self.data_dict.get("developers", None)
+            dev_text: str = f"""מפתחת: {dev}""" if dev else ""
             pub: str = self.data_dict.get("publisher", None)
-            pub_text: str = f"""מפיצה: {self.data_dict.get("publisher", None)}""" if pub else ""
+            pub_text: str = f"""מפיצה: {pub}""" if pub else ""
             wiki_url: str = self.data_dict.get("wiki_url", None)
             wiki_text: str = f"""בוויקיפדיה: {wiki_url}""" + \
                 "\n" if wiki_url else "\n"
@@ -104,7 +106,7 @@ class GameInfo:
             heb_platforms: typing.List[str] = [self.heb_platforms.get(
                 p, p) for p in self.data_dict["platforms"]]
             info_text: str = "\n".join([
-                "מפתחת: {}".format(self.data_dict["developers"][0]),
+                dev_text,
                 pub_text,
                 "פלטפורמות: {}".format(
                     ", ".join(sorted([p for p in heb_platforms if p])) if len(heb_platforms) < 8 else "יותר מדי")
@@ -216,8 +218,7 @@ class GameInfo:
         """
         try:
             ret: typing.Dict[str, typing.Any] = {"developers": []}
-            for key in ("name", "summary", "aggregated_rating_count",
-                        "aggregated_rating", "cover", "artworks", "screenshots"):
+            for key in ("name", "summary", "cover", "artworks", "screenshots"):
                 if val := game_info_data_dict.get(key, None):
                     ret[key] = val
 
