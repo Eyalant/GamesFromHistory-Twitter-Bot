@@ -91,7 +91,7 @@ class GameInfo:
         """
         try:
             dev: str = self.data_dict.get("developers", None)
-            dev_text: str = f"""מפתחת: {dev}""" if dev else ""
+            dev_text: str = f"""מפתחת: {dev[0]}""" if dev else ""
             pub: str = self.data_dict.get("publisher", None)
             pub_text: str = f"""מפיצה: {pub}""" if pub else ""
             wiki_url: str = self.data_dict.get("wiki_url", None)
