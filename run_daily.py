@@ -13,7 +13,7 @@ from src.game_info import GameInfo
 def run_daily() -> None:
     """
     Run this using cron/eventtrigger on a daily basis. This queries the IGDB API
-    for all games released on this day from 1970 to (current year - 1), checks
+    for all games released on this day from 1970 to (current year - 3), checks
     if the results are valid, then stores the game data dicts in redis. The game data dicts
     will be fetched later, one-by-one, using run_hourly().
     """
@@ -49,11 +49,11 @@ def run_daily() -> None:
 
 def _prepare_dates_list(start_year: int = 1970) -> typing.List[conn_igdb.IGDB_Date]:
     """
-    Returns IGDB game release dates from 1970 to (current year - 1).
+    Returns IGDB game release dates from 1970 to (current year - 3).
     """
     try:
         dt_now: datetime = datetime.now(tz=timezone.utc)
-        years_ints: typing.List[int] = list(range(start_year, dt_now.year))
+        years_ints: typing.List[int] = list(range(start_year, dt_now.year - 2))
         dates_lower_bound: typing.List[datetime] = [
             datetime(year=y, month=dt_now.month, day=dt_now.day, tzinfo=timezone.utc) for y in years_ints]
         dates_upper_bound: typing.List[datetime] = [
