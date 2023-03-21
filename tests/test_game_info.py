@@ -33,7 +33,7 @@ class TestTranslateGameGenre(unittest.TestCase):
 class TestGetImageDictFromDataDict(unittest.TestCase):
     def test_nonexistent_key(self):
         gi = game_info.GameInfo(data_dict={})
-        assert len(gi._get_image_dict_from_data_dict(key="...")) == 0
+        assert len(gi._get_image_dicts_from_data_dict(key="...", number_of_imgs=2)) == 0
 
 class TestExtractImageURLsFromDataDict(unittest.TestCase):
     def test_bad_image_dicts(self):
