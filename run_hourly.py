@@ -9,6 +9,7 @@ import typing
 import logging
 import sys
 
+
 def run_hourly() -> None:
     """
     Run this via cron/eventtrigger on an hourly/bi-hourly basis. This fetches a single game
@@ -16,23 +17,29 @@ def run_hourly() -> None:
     """
     try:
         rc = conn_redis.connect(redis_url=str(environ.get("REDIS_URL")))
-        game_data_dict: typing.Optional[typing.Dict[str, typing.Any]] = conn_redis.getdel_single_game_data_dict(redis_client=rc)
+        game_data_dict: typing.Optional[typing.Dict[str, typing.Any]
+                                        ] = conn_redis.getdel_single_game_data_dict(redis_client=rc)
         if not game_data_dict:
             logging.info("There was no game to fetch from redis. Exiting")
             exit(0)
         twitter: conn_twitter.Twitter = conn_twitter.Twitter()
-        game_info: GameInfo = GameInfo(game_data_dict, do_clean_dict=False) # was already cleaned before storing to Redis
-        logging.info("Pulled game {} from Redis".format(game_info.data_dict["name"]))
-        media_ids: typing.List[str] = twitter.upload_images(image_binaries=game_info.images)
-        payload: typing.Dict[str, str] = twitter.make_tweet(tweet_text=str(game_info), media_ids=media_ids[:3])
+        game_info: GameInfo = GameInfo(game_data_dict, do_clean_dict=False) # was already cleaned
+        logging.info("Pulled game {} from Redis. {} games remaining.".format(
+            game_info.data_dict["name"], rc.dbsize()))
+        media_ids: typing.List[str] = twitter.upload_images(
+            image_binaries=game_info.images)
+        payload: typing.Dict[str, str] = twitter.make_tweet(
+            tweet_text=str(game_info), media_ids=media_ids[:3])
         logging.info("Trying to tweet...")
         resp: typing.Dict[str, typing.Any] = twitter.tweet(payload)
         logging.info("Tweet response: " + str(resp))
     except Exception as e:
         logging.critical(
-            "Completed an hourly / bi-hourly script: exiting following exception. Details to follow\n" + str(e), exc_info=True)
+            "Completed an hourly / bi-hourly script: exiting following exception."\
+            "Details to follow\n" + str(e), exc_info=True)
         exit(1)
     logging.info("Completed an hourly / bi-hourly script")
+
 
 def handler(event, context):
     if len(logging.getLogger().handlers) > 0:   # running on AWS Lambda
@@ -48,6 +55,7 @@ def handler(event, context):
     load_dotenv()
     v_env.verify_env_vars()
     run_hourly()
+
 
 if __name__ == "__main__":
     handler(None, None)

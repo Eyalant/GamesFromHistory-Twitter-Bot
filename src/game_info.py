@@ -72,17 +72,20 @@ class GameInfo:
                 "Nintendo Switch": "סוויץ'",
                 "Nintendo 64": "נינטנדו 64",
                 "Nintendo Entertainment System": "NES",
+                "Super Nintendo Entertainment System": "SNES",
                 "Nintendo 3DS": "3DS",
                 "Nintendo DS": "DS",
                 "Nintendo GameCube": "גיימקיוב",
                 "Wii": "ווי",
                 "Wii U": "ווי U",
+                "Super Famicom": "סופר פאמיקום",
                 "Game Boy": "גיימבוי",
                 "Game Boy Color": "גיימבוי קולור",
                 "Game Boy Advance": "GBA",
                 "iOS": "אייפון",
                 "Android": "אנדרואיד",
-                "Google Stadia": "", "Linux": "", "Mac": ""
+                "Google Stadia": "", "Linux": "", "Mac": "",
+                "Legacy Mobile Device": "",
             }
         except Exception as e:
             raise Exception("Could not create a GameInfo object") from e
@@ -149,6 +152,9 @@ class GameInfo:
         Translates the game genre from English to Hebrew.
         """
         try:
+            if themes := self.data_dict.get("themes", None):
+                if "Stealth" in themes:
+                    return "המשחק"  # to not mislabel stealth games as other genres
             return self.heb_game_genres[genre]
         except KeyError:
             return "המשחק"
@@ -223,7 +229,9 @@ class GameInfo:
             for key in ("name", "summary", "cover", "artworks", "screenshots"):
                 if val := game_info_data_dict.get(key, None):
                     ret[key] = val
-
+            for key in ("platforms", "themes"):
+                if val_dicts := game_info_data_dict.get(key, None):
+                    ret[key] = [val["name"] for val in val_dicts]
             if genres := game_info_data_dict.get("genres", None):
                 ret["genre"] = genres[0]["name"]
             if companies := game_info_data_dict.get("involved_companies", None):
@@ -232,8 +240,6 @@ class GameInfo:
                         ret["developers"].append(d["company"]["name"])
                     if d["publisher"]:
                         ret["publisher"] = d["company"]["name"]
-            if platforms := game_info_data_dict.get("platforms", None):
-                ret["platforms"] = [p["name"] for p in platforms]
             if websites := game_info_data_dict.get("websites", None):
                 for site in websites:
                     if site["category"] == 3:

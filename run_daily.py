@@ -39,7 +39,7 @@ def run_daily() -> None:
         rc.flushdb()
         conn_redis.store_game_data_dicts(
             redis_client=rc, data_dicts=todays_game_data_dicts)
-        logging.info("Stored games {} to Redis".format(g["name"] for g in todays_game_data_dicts))
+        logging.info("Stored games {} to Redis".format([g["name"] for g in todays_game_data_dicts]))
     except Exception as e:
         logging.critical(
             "Completed a daily script: exiting following exception. Details to follow\n" + str(e), exc_info=True)
@@ -73,7 +73,7 @@ def _prepare_request_body(d: conn_igdb.IGDB_Date) -> str:
         return "fields name, parent_game, total_rating_count, total_rating, platforms.name,"\
             "summary, cover.url, involved_companies.company.name, involved_companies.developer,"\
             "involved_companies.publisher, genres.name, websites.category, websites.url, artworks.url,"\
-            "screenshots.url;"\
+            "screenshots.url, themes.name;"\
             f"where (first_release_date >= {d.lower_bound['ts']})"\
             f"& (first_release_date <= {d.upper_bound['ts']})"\
             "& (themes != (42))"\
