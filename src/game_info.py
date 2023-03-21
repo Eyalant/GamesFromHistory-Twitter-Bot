@@ -18,7 +18,7 @@ class GameInfo:
             if (not self._is_parent(data_dict)) or (self._is_sports(data_dict)):
                 raise Exception(
                     "Game isn't an ancestor, or it's a sports game")
-            self.data_dict: typing.Dict[str, typing.Any] = GameInfo._clean_data_dict(
+            self.data_dict: typing.Dict[str, typing.Any] = GameInfo.clean_data_dict(
                 data_dict) if do_clean_dict else data_dict
             self.images: typing.List[str] = self._dl_game_images_to_ram()
             self.heb_game_genres: typing.Dict[str, str] = {
@@ -75,6 +75,8 @@ class GameInfo:
                 "Nintendo 3DS": "3DS",
                 "Nintendo DS": "DS",
                 "Nintendo GameCube": "גיימקיוב",
+                "Wii": "ווי",
+                "Wii U": "ווי U",
                 "Game Boy": "גיימבוי",
                 "Game Boy Color": "גיימבוי קולור",
                 "Game Boy Advance": "GBA",
@@ -151,13 +153,14 @@ class GameInfo:
         except KeyError:
             return "המשחק"
 
-    def _get_image_dict_from_data_dict(self, key: str) -> typing.Dict[str, str]:
+    def _get_image_dicts_from_data_dict(self, key: str, number_of_imgs: int) -> typing.List[typing.Dict[str, str]]:
         """
-        Gets the first single-image dictionary with the given name from the data dict. 
+        Gets the first X single-image dictionaries with the given name from the data dict. 
         """
         if dictlist := self.data_dict.get(key, None):
-            return dictlist[0]  # grab first screenshot or artwork
-        return {}
+            # grab first screenshot or artwork dict.
+            return dictlist[:number_of_imgs]
+        return []
 
     def _extract_image_urls_from_data_dict(self) -> typing.List[str]:
         """
@@ -179,11 +182,10 @@ class GameInfo:
                     f"Could not extract image urls from this image dict: {pformat(image_dict)}") from e
 
         try:
-            image_dicts: typing.List[typing.Dict[str, str]] = [
-                self.data_dict.get("cover"),  # type: ignore
-                self._get_image_dict_from_data_dict(key="screenshots"),
-                self._get_image_dict_from_data_dict(key="artworks")]
-            return [_get_image_url_from_image_dict(d) for d in image_dicts if d]
+            screens_dicts: typing.List[typing.Dict[str, str]] = [d for d in self._get_image_dicts_from_data_dict(key="screenshots", number_of_imgs=2)]
+            art_dicts: typing.List[typing.Dict[str, str]] = [d for d in self._get_image_dicts_from_data_dict(key="artworks", number_of_imgs=2)]
+            all_image_dicts: typing.List[typing.Dict[str, str]] = [self.data_dict.get("cover")] + screens_dicts + art_dicts # type: ignore
+            return [_get_image_url_from_image_dict(d) for d in all_image_dicts if d]
         except Exception as e:
             raise ValueError(
                 "Could not extract image urls from GameInfo data dict") from e
@@ -212,7 +214,7 @@ class GameInfo:
             raise Exception("Could not download GameInfo images to RAM") from e
 
     @staticmethod
-    def _clean_data_dict(game_info_data_dict: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def clean_data_dict(game_info_data_dict: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
         """
         Cleans and parses the given game data dict.
         """

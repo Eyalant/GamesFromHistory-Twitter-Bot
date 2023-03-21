@@ -28,19 +28,18 @@ def run_daily() -> None:
                 raw_body=_prepare_request_body(d))
             for data_dict in game_data_dicts_in_year:
                 try:
-                    game = GameInfo(data_dict)
-                    # type: ignore
-                    game.data_dict["year"] = d.lower_bound["dt"].year
-                    todays_game_data_dicts.append(game.data_dict)
+                    clean_dict = GameInfo.clean_data_dict(data_dict)
+                    clean_dict["year"] = d.lower_bound["dt"].year
+                    todays_game_data_dicts.append(clean_dict)
                 except Exception as e:
                     logging.exception(e)
                     continue
-        # logging.info(todays_game_data_dicts)
         rc = conn_redis.connect(
             redis_url=environ.get("REDIS_URL"))
         rc.flushdb()
         conn_redis.store_game_data_dicts(
             redis_client=rc, data_dicts=todays_game_data_dicts)
+        logging.info("Stored games {} to Redis".format(g["name"] for g in todays_game_data_dicts))
     except Exception as e:
         logging.critical(
             "Completed a daily script: exiting following exception. Details to follow\n" + str(e), exc_info=True)

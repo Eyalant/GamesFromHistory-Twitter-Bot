@@ -54,7 +54,7 @@ class TestDLGameImageEncodeB64(unittest.TestCase):
 
 class TestCleanDataDict(unittest.TestCase):
     """ 
-    Note: these tests assume the constructor calls the _clean_data_dict method.
+    Note: these tests assume the constructor calls the clean_data_dict method.
     """
 
     def test_relevant_key_exists_in_raw_dict(self):
