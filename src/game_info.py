@@ -153,8 +153,8 @@ class GameInfo:
         """
         try:
             if themes := self.data_dict.get("themes", None):
-                if "Stealth" in themes:
-                    return "המשחק"  # to not mislabel stealth games as other genres
+                if any("Stealth", "Sandbox", "Historical") in themes:
+                    return "המשחק"  # don't mislabel games' genres
             return self.heb_game_genres[genre]
         except KeyError:
             return "המשחק"
