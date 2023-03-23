@@ -106,24 +106,24 @@ class GameInfo:
             heb_genres: typing.List[str] = [
                 self.heb_game_genres_themes.get(g, "") for g in genres[:3]]
             heb_genres = [g for g in heb_genres if g]
-            intro_text: str = "משחק ה{}".format(
-                "/".join(heb_genres)) if heb_genres else "המשחק"
             wiki_text: str = f"""בוויקיפדיה: {wiki_url}""" + \
                 "\n" if wiki_url else "\n"
             release_text: str = "".join([
-                                " {} חוגג {} שנים לשחרורו!".format(
-                                    self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
-                " הוא יצא היום בשנת {}.".format(
-                                    self.data_dict["year"])])
+                "מזל טוב ל-{}, שחוגג {} שנים לשחרורו! 🎂".format(
+                    self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
+                "\n",
+                "הוא יצא היום בשנת {}.".format(
+                    self.data_dict["year"])])
             heb_platforms: typing.List[str] = [self.heb_platforms.get(
                 p, p) for p in self.data_dict["platforms"]]
             info_text: str = "\n".join([
                 devs_text,
                 pub_text,
+                "ז'אנרים: {}".format(", ".join(heb_genres)),
                 "פלטפורמות: {}".format(
-                    ", ".join(sorted([p for p in heb_platforms if p])) if len(heb_platforms) < 8 else "יותר מדי")
+                    ", ".join(sorted([p for p in heb_platforms if p])) if len(heb_platforms) < 8 else "יותר מדי...")
             ]).replace("\n"*2, "\n")
-            tweet: str = intro_text + release_text + "\n"*2 + info_text + "\n"
+            tweet: str = release_text + "\n"*2 + info_text + "\n"
             if len(tweet) + GameInfo.MAX_TWITTER_URL_LENGTH <= 180:
                 tweet += wiki_text
             return tweet
