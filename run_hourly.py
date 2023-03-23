@@ -22,10 +22,9 @@ def run_hourly() -> None:
         if not game_data_dict:
             logging.info("There was no game to fetch from redis. Exiting")
             exit(0)
-        logging.info("Pulled game {} from Redis. {} games remaining.".format(
-            game_info.data_dict["name"], rc.dbsize()))
         game_info: GameInfo = GameInfo(game_data_dict)
-        
+        logging.info("Pulled game {} from Redis. {} games remaining.".format(
+            game_info.data_dict["name"], rc.dbsize()))        
         twitter: conn_twitter.Twitter = conn_twitter.Twitter()
         media_ids: typing.List[str] = twitter.upload_images(
             image_binaries=game_info.images)
