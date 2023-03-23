@@ -13,39 +13,40 @@ class GameInfo:
     """
     MAX_TWITTER_URL_LENGTH: int = 23
 
-    def __init__(self, data_dict: typing.Dict[str, typing.Any], do_clean_dict: typing.Optional[bool] = True):
+    def __init__(self, data_dict: typing.Dict[str, typing.Any]):
         try:
-            if (not self._is_parent(data_dict)) or (self._is_sports(data_dict)):
-                raise Exception(
-                    "Game isn't an ancestor, or it's a sports game")
-            self.data_dict: typing.Dict[str, typing.Any] = GameInfo.clean_data_dict(
-                data_dict) if do_clean_dict else data_dict
+            self.data_dict: typing.Dict[str, typing.Any] = GameInfo._clean_data_dict(
+                data_dict)
             self.images: typing.List[str] = self._dl_game_images_to_ram()
-            self.heb_game_genres: typing.Dict[str, str] = {
-                "Fighting": "משחק הלחימה",
-                "Shooter": "השוטר",
-                "Music": "משחק הקצב",
-                "Platform": "הפלטפורמר",
-                "Puzzle": "הפאזלר",
-                "Racing": "משחק המירוצים",
-                "Real Time Strategy (RTS)": "משחק האסטרטגיה בזמן-אמת",
-                "Role-playing (RPG)": "משחק התפקידים",
-                "Simulator": "משחק הסימולציה",
-                "Strategy": "משחק האסטרטגיה",
-                "Turn-based strategy (TBS)": "משחק האסטרטגיה בתורים",
-                "Tactical": "משחק הטקטיקה",
-                "Quiz/Trivia": "משחק הטריוויה",
-                "Hack and slash/Beat 'em up": "משחק ההאק-אנד-סלאש",
-                "Adventure": "משחק ההרפתקה",
-                "Arcade": "משחק הארקייד",
-                "Visual Novel": "הויז'ואל נובל",
-                "Indie": "משחק האינדי",
-                "Card & Board Game": "משחק הקלפים/לוח",
-                "MOBA": "המובה",
-                "Point-and-click": "משחק הפוינט-אנד-קליק"
+            self.heb_game_genres_themes: typing.Dict[str, str] = {
+                "Fighting": "לחימה",
+                "Stealth": "התגנבות",
+                "Horror": "אימה",
+                "Action": "אקשן",
+                "Fantasy": "פנטזיה",
+                "Shooter": "ירי",
+                "Music": "קצב",
+                "Platform": "פלטפורמה",
+                "Puzzle": "פאזלים",
+                "Racing": "מירוצים",
+                "Real Time Strategy (RTS)": "אסטרטגיה בזמן-אמת",
+                "Role-playing (RPG)": "תפקידים",
+                "Simulator": "סימולציה",
+                "Strategy": "אסטרטגיה",
+                "Turn-based strategy (TBS)": "אסטרטגיה בתורים",
+                "Tactical": "טקטיקה",
+                "Quiz/Trivia": "טריוויה",
+                "Hack and slash/Beat 'em up": "האק-אנד-סלאש",
+                "Adventure": "הרפתקה",
+                "Arcade": "ארקייד",
+                "Visual Novel": "ויז'ואל נובל",
+                "Indie": "אינדי",
+                "Card & Board Game": "קלפים ולוח",
+                "MOBA": "מובה",
+                "Point-and-click": "פוינט-אנד-קליק"
             }
             self.heb_platforms: typing.Dict[str, str] = {
-                "PlayStation": "PSX",
+                "PlayStation": "פס1",
                 "PlayStation 2": "פס2",
                 "PlayStation 3": "פס3",
                 "PlayStation 4": "פס4",
@@ -77,7 +78,7 @@ class GameInfo:
                 "Nintendo DS": "DS",
                 "Nintendo GameCube": "גיימקיוב",
                 "Wii": "ווי",
-                "Wii U": "ווי U",
+                "Wii U": "ווי יו",
                 "Super Famicom": "סופר פאמיקום",
                 "Game Boy": "גיימבוי",
                 "Game Boy Color": "גיימבוי קולור",
@@ -96,18 +97,24 @@ class GameInfo:
         """
         try:
             devs: typing.List[str] = self.data_dict.get("developers", None)
-            devs_text: str = f"""מפתחת: {", ".join([d for d in devs[:2]])}""" if devs else ""
-            pub: str = self.data_dict.get("publisher", None)
-            pub_text: str = f"""מפיצה: {pub}""" if pub else ""
+            genres: typing.List[str] = self.data_dict.get("genres", None)
             wiki_url: str = self.data_dict.get("wiki_url", None)
+            test_img: str = self.data_dict.get("cover", None)
+            pub: str = self.data_dict.get("publisher", None)
+            devs_text: str = f"""מפתחת: {", ".join(devs[:2])}""" if devs else ""
+            pub_text: str = f"""מפיצה: {pub}""" if pub else ""
+            heb_genres: typing.List[str] = [
+                self.heb_game_genres_themes.get(g, "") for g in genres[:3]]
+            heb_genres = [g for g in heb_genres if g]
+            intro_text: str = "משחק ה{}".format(
+                "/".join(heb_genres)) if heb_genres else "המשחק"
             wiki_text: str = f"""בוויקיפדיה: {wiki_url}""" + \
                 "\n" if wiki_url else "\n"
-            test_img: str = self.data_dict.get("cover", None)
-            intro_text: str = "".join([
-                "{} {} חוגג {} שנים לשחרורו!".format(self._translate_game_genre(self.data_dict["genre"]),
-                                                     self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
-                " הוא יצא היום בשנת {}.".format(self.data_dict["year"])
-            ])
+            release_text: str = "".join([
+                                " {} חוגג {} שנים לשחרורו!".format(
+                                    self.data_dict["name"], datetime.now().year - self.data_dict["year"]),
+                " הוא יצא היום בשנת {}.".format(
+                                    self.data_dict["year"])])
             heb_platforms: typing.List[str] = [self.heb_platforms.get(
                 p, p) for p in self.data_dict["platforms"]]
             info_text: str = "\n".join([
@@ -115,8 +122,8 @@ class GameInfo:
                 pub_text,
                 "פלטפורמות: {}".format(
                     ", ".join(sorted([p for p in heb_platforms if p])) if len(heb_platforms) < 8 else "יותר מדי")
-            ])
-            tweet: str = intro_text + "\n"*2 + info_text + "\n"
+            ]).replace("\n"*2, "\n")
+            tweet: str = intro_text + release_text + "\n"*2 + info_text + "\n"
             if len(tweet) + GameInfo.MAX_TWITTER_URL_LENGTH <= 180:
                 tweet += wiki_text
             return tweet
@@ -125,39 +132,38 @@ class GameInfo:
                 "Could not create a string repr. of a GameInfo") from e
 
     @staticmethod
-    def _is_parent(game_info_data_dict: typing.Dict[str, typing.Any]) -> bool:
+    def _is_remake(raw_game_info_data_dict: typing.Dict[str, typing.Any]) -> bool:
         """
-        Checks if the game is a first-release or a DLC / Expansion Pack / Special Edition.
+        Checks if the game is a remake of another game using the raw dict.
         """
-        if (parent_game := game_info_data_dict.get("parent_game", None)) and (id := game_info_data_dict.get("id", None)):
+        if (cat := raw_game_info_data_dict.get("category", None)):
+            if cat == 8:
+                return True
+        return False
+
+    @staticmethod
+    def _is_parent(raw_game_info_data_dict: typing.Dict[str, typing.Any]) -> bool:
+        """
+        Checks if the game is a first-release or a DLC / Expansion Pack using the raw dict.
+        """
+        if (parent_game := raw_game_info_data_dict.get("parent_game", None)) and (id := raw_game_info_data_dict.get("id", None)):
             if parent_game != id:
                 return False
         return True
 
     @staticmethod
-    def _is_sports(game_info_data_dict: typing.Dict[str, typing.Any]) -> bool:
+    def _is_sports(raw_game_info_data_dict: typing.Dict[str, typing.Any]) -> bool:
         """
-        Checks if the game is a sports title.
+        Checks if the game is a sports title using the raw dict.
         """
         try:
-            if (genres := game_info_data_dict.get("genres", None)):
-                if genres[0]["name"] == "Sport":
-                    return True
+            if (genres := raw_game_info_data_dict.get("genres", None)):
+                for g in genres:
+                    if g.get("name", "") == "Sport":
+                        return True
             return False
         except (IndexError, KeyError):
             raise
-
-    def _translate_game_genre(self, genre: str):
-        """
-        Translates the game genre from English to Hebrew.
-        """
-        try:
-            if themes := self.data_dict.get("themes", None):
-                if any(t in themes for t in ["Stealth", "Sandbox", "Historical"]):
-                    return "המשחק"  # don't mislabel games' genres
-            return self.heb_game_genres[genre]
-        except KeyError:
-            return "המשחק"
 
     def _get_image_dicts_from_data_dict(self, key: str, number_of_imgs: int) -> typing.List[typing.Dict[str, str]]:
         """
@@ -188,9 +194,12 @@ class GameInfo:
                     f"Could not extract image urls from this image dict: {pformat(image_dict)}") from e
 
         try:
-            screens_dicts: typing.List[typing.Dict[str, str]] = [d for d in self._get_image_dicts_from_data_dict(key="screenshots", number_of_imgs=2)]
-            art_dicts: typing.List[typing.Dict[str, str]] = [d for d in self._get_image_dicts_from_data_dict(key="artworks", number_of_imgs=2)]
-            all_image_dicts: typing.List[typing.Dict[str, str]] = [self.data_dict.get("cover")] + screens_dicts + art_dicts # type: ignore
+            screens_dicts: typing.List[typing.Dict[str, str]] = [
+                d for d in self._get_image_dicts_from_data_dict(key="screenshots", number_of_imgs=2)]
+            art_dicts: typing.List[typing.Dict[str, str]] = [
+                d for d in self._get_image_dicts_from_data_dict(key="artworks", number_of_imgs=2)]
+            all_image_dicts: typing.List[typing.Dict[str, str]] = [
+                self.data_dict.get("cover")] + screens_dicts + art_dicts  # type: ignore
             return [_get_image_url_from_image_dict(d) for d in all_image_dicts if d]
         except Exception as e:
             raise ValueError(
@@ -220,26 +229,64 @@ class GameInfo:
             raise Exception("Could not download GameInfo images to RAM") from e
 
     @staticmethod
-    def clean_data_dict(game_info_data_dict: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def _clean_genres_list(genres: typing.List[str], themes: typing.List[str]) -> typing.List[str]:
+        """
+        IGDB genres don't always reflect the game's nature. This function cleans the genre list
+        and specifically handles special cases.
+        """
+        try:
+            if genres:  # add genres using the themes list, if there's room
+                for t in ("Action", "Horror", "Stealth"):
+                    if len(genres) < 3:
+                        if t in themes:
+                            genres.append(t)
+                    else:
+                        break
+
+            # specific genre combinations and their "genres" list to be returned
+            special_cases: typing.Dict[typing.Tuple, typing.List[str]] = {
+                ("Racing", "Arcade"): ["Racing", "Arcade"],
+                ("Platform", "Hack and slash/Beat 'em up", "Action"): ["Hack and slash/Beat 'em up", "Platform"],
+                ("Strategy", "Hack and slash/Beat 'em up", "Adventure"): ["Hack and slash/Beat 'em up"],
+                ("Shooter", "Hack and slash/Beat 'em up", "Action"): ["Shooter", "Action", "Hack and slash/Beat 'em up"],
+                ("Fighting", "Action"): ["Fighting"],
+                ("Puzzle", "Action"): ["Action", "Puzzle"],
+                ("Puzzle", "Shooter"): ["Shooter", "Puzzle"],
+            }
+
+            for k in special_cases.keys():
+                if all(g in genres for g in k):
+                    genres = special_cases[k]
+
+            return genres
+        except (IndexError, KeyError, ValueError) as e:
+            raise ValueError("Could not clean the genres list.") from e
+
+    @staticmethod
+    def _clean_data_dict(game_info_data_dict: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
         """
         Cleans and parses the given game data dict.
         """
         try:
             ret: typing.Dict[str, typing.Any] = {"developers": []}
-            for key in ("name", "summary", "cover", "artworks", "screenshots"):
+
+            for key in ("name", "summary", "year", "cover", "artworks", "screenshots"):
                 if val := game_info_data_dict.get(key, None):
                     ret[key] = val
-            for key in ("platforms", "themes"):
-                if val_dicts := game_info_data_dict.get(key, None):
-                    ret[key] = [val["name"] for val in val_dicts]
-            if genres := game_info_data_dict.get("genres", None):
-                ret["genre"] = genres[0]["name"]
+            for key in ("platforms", "themes", "genres"):
+                if val_dict := game_info_data_dict.get(key, None):
+                    ret[key] = [v.get("name", "") for v in val_dict]
+
+            ret["genres"] = GameInfo._clean_genres_list(
+                genres=ret.get("genres", []), themes=ret.get("themes", []))
+
             if companies := game_info_data_dict.get("involved_companies", None):
                 for d in companies:
                     if d["developer"]:
                         ret["developers"].append(d["company"]["name"])
                     if d["publisher"]:
                         ret["publisher"] = d["company"]["name"]
+
             if websites := game_info_data_dict.get("websites", None):
                 for site in websites:
                     if site["category"] == 3:

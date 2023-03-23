@@ -7,28 +7,32 @@ sys.path.append(str(pathlib.Path(__file__).parents[1] / "src"))
 import game_info
 from unittest.mock import patch, Mock
 
+class TestIsRemake(unittest.TestCase):
+    def test_remake_game(self):
+        gi = game_info.GameInfo(data_dict={})
+        self.assertTrue(gi._is_remake(raw_game_info_data_dict={"category": 8}))
+
+    def test_not_remake_game(self):
+        gi = game_info.GameInfo(data_dict={})
+        self.assertFalse(gi._is_remake(raw_game_info_data_dict={"category": 0}))
+
 class TestIsParent(unittest.TestCase):
     def test_parent_game(self):
         gi = game_info.GameInfo(data_dict={})
-        self.assertTrue(gi._is_parent(game_info_data_dict={"id": "1", "parent_game": "1"}))
+        self.assertTrue(gi._is_parent(raw_game_info_data_dict={"id": "1", "parent_game": "1"}))
 
     def test_not_parent_game(self):
         gi = game_info.GameInfo(data_dict={})
-        self.assertFalse(gi._is_parent(game_info_data_dict={"id": "1", "parent_game": "2"}))
+        self.assertFalse(gi._is_parent(raw_game_info_data_dict={"id": "1", "parent_game": "2"}))
 
 class TestIsSports(unittest.TestCase):
     def test_sports_game(self):
         gi = game_info.GameInfo(data_dict={})
-        self.assertTrue(gi._is_sports(game_info_data_dict={"genres": [{"name": "Sport"}]}))
+        self.assertTrue(gi._is_sports(raw_game_info_data_dict={"genres": [{"name": "Sport"}]}))
 
     def test_not_sports_game(self):
         gi = game_info.GameInfo(data_dict={})
-        self.assertFalse(gi._is_sports(game_info_data_dict={"genres": [{"name": "Not Sport"}]}))
-
-class TestTranslateGameGenre(unittest.TestCase):
-    def test_nonexistent_translation(self):
-        gi = game_info.GameInfo(data_dict={})
-        self.assertEqual("המשחק", gi._translate_game_genre(genre="..."))
+        self.assertFalse(gi._is_sports(raw_game_info_data_dict={"genres": [{"name": "Not Sport"}]}))
 
 class TestGetImageDictFromDataDict(unittest.TestCase):
     def test_nonexistent_key(self):
@@ -52,6 +56,27 @@ class TestDLGameImageEncodeB64(unittest.TestCase):
         gi = game_info.GameInfo(data_dict={})
         self.assertRaises((ValueError, TypeError), gi._dl_game_image_encode_b64, "...")
 
+class TestCleanGenresList(unittest.TestCase):
+    def test_add_themes_triggered(self):
+        gi = game_info.GameInfo(data_dict={})
+        res = gi._clean_genres_list(genres=["Genre 1", "Genre 2"], themes=["Stealth"])
+        self.assertListEqual(res, ["Genre 1", "Genre 2", "Stealth"])
+
+    def test_add_themes_not_triggered(self):
+        gi = game_info.GameInfo(data_dict={})
+        res = gi._clean_genres_list(genres=["Genre 1", "Genre 2"], themes=[])
+        self.assertListEqual(res, ["Genre 1", "Genre 2"])
+
+    def test_special_cases(self):
+        """ Only a portion """
+        gi = game_info.GameInfo(data_dict={})
+        res = gi._clean_genres_list(genres=["Platform", "Hack and slash/Beat 'em up", "Action"], themes=[])
+        self.assertListEqual(res, ["Hack and slash/Beat 'em up", "Platform"])
+        res = gi._clean_genres_list(genres=["Action"], themes=[])
+        self.assertListEqual(res, ["Action"])
+        res = gi._clean_genres_list(genres=["Action", "Fighting"], themes=[])
+        self.assertListEqual(res, ["Fighting"])
+
 class TestCleanDataDict(unittest.TestCase):
     """ 
     Note: these tests assume the constructor calls the clean_data_dict method.
@@ -71,11 +96,11 @@ class TestCleanDataDict(unittest.TestCase):
         "genres": [{"name": "some_genre"}],
         "involved_companies": [{"developer": True, "publisher": False, "company": {"name": "some_dev"}},
         {"developer": False, "publisher": True, "company": {"name": "some_pub"}}],
-        "platforms": [{"name": "p1"}, {"name": "p2"}]
+        "platforms": [{"name": "p1"}, {"name": "p2"}], "themes": [],
         }
         gi = game_info.GameInfo(data_dict=d)
         expected_cleaned_d = {"name": "some_name", 
-        "genre": "some_genre", 
+        "genres": ["some_genre"], 
         "developers": ["some_dev"], 
         "publisher": "some_pub", 
         "platforms": ["p1", "p2"]}

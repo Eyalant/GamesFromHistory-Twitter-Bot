@@ -22,10 +22,11 @@ def run_hourly() -> None:
         if not game_data_dict:
             logging.info("There was no game to fetch from redis. Exiting")
             exit(0)
-        twitter: conn_twitter.Twitter = conn_twitter.Twitter()
-        game_info: GameInfo = GameInfo(game_data_dict, do_clean_dict=False) # was already cleaned
         logging.info("Pulled game {} from Redis. {} games remaining.".format(
             game_info.data_dict["name"], rc.dbsize()))
+        game_info: GameInfo = GameInfo(game_data_dict)
+        
+        twitter: conn_twitter.Twitter = conn_twitter.Twitter()
         media_ids: typing.List[str] = twitter.upload_images(
             image_binaries=game_info.images)
         payload: typing.Dict[str, str] = twitter.make_tweet(
@@ -37,14 +38,14 @@ def run_hourly() -> None:
         logging.critical(
             "Completed an hourly / bi-hourly script: exiting following exception."\
             "Details to follow\n" + str(e), exc_info=True)
-        exit(1)
+        exit(0)
     logging.info("Completed an hourly / bi-hourly script")
 
 
 def handler(event, context):
     if len(logging.getLogger().handlers) > 0:   # running on AWS Lambda
         logging.getLogger().setLevel(logging.INFO)
-    else:   # debug local run
+    else:   # debug a local run
         logging.basicConfig(level=logging.INFO)
         logging.basicConfig(level=logging.INFO,
                             format="%(asctime)s: %(message)s",

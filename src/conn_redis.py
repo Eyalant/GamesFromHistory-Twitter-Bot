@@ -13,7 +13,7 @@ def connect(redis_url: str) -> redis.Redis:
         raise ConnectionError("Could not connect to redis") from e
 
 
-def store_game_data_dicts(redis_client: redis.Redis, data_dicts: typing.List[typing.Dict[str, typing.Any]]):
+def store_raw_game_data_dicts(redis_client: redis.Redis, data_dicts: typing.List[typing.Dict[str, typing.Any]]):
     """
     Set the given data dicts as redis keys.
     """
