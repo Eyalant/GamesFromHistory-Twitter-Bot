@@ -4,6 +4,6 @@ No API wrappers were used here; I felt they were too much of a black box and opt
 
 ## How it works
 
-The *run_daily* script runs once per day, and triggers multiple requests to fetch the list of raw game data from IGDB. These are parsed and stored in Redis. Once done, the *run_hourly* script follows and runs multiple times a day. It retrieves a single game's info from Redis, downloads it's attached images, uploads them to Twitter, and tweets the parsed info.
+The *run_daily* script runs once per day, and triggers multiple requests to fetch the list of raw game data from IGDB. These are stored in Redis. Once done, the *run_hourly* script follows and runs multiple times a day. It retrieves a single game's data from Redis, parses it, downloads it's attached images, uploads them to Twitter, and tweets the parsed info.
 
 I used *Render.com* for my Redis instance and *AWS Lambda* and *EventTrigger* to trigger the scripts.
